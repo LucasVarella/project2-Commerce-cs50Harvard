@@ -1,0 +1,73 @@
+body {
+    margin: 0;
+    background-image: url("../images/mesh-699.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;   
+    padding-top: 1.5rem;
+}
+
+.flex{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex-column{
+    flex-direction: column;
+}
+
+.flex-column-reverse{
+    flex-direction: column-reverse;
+}
+
+/* From Listining Auctions */
+.flex-row{
+    flex-direction: row;
+    align-items: center;
+             
+}
+
+.flex-row-reverse{
+    flex-direction: row-reverse;
+    align-items: center;
+             
+}
+
+.div-box{
+    justify-content: space-between;
+    margin: 1.5rem 0rem;
+    padding: 1rem 2rem;
+
+    background: rgba(193, 219, 247, 0.05);
+    border-radius: 13px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border: 1px solid rgba(237, 230, 255, 0.08);
+}
+
+.auction-all-open{
+    justify-content: space-around;
+    align-items: center;
+}
+
+.auction-image{
+    width: 200px;
+}
+
+.auction-image-bigger{
+    max-width: 22rem;
+	height:auto;
+}
+
+.auction-labels{
+    padding-left: 2rem;
+}
+
+.button-bid{
+
+}
+    
+.btn-placebid{
+    margin-top: 20px;
+}

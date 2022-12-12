@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    
+    <h2>Active Listings</h2>
+
+    {% for auction in auctions %}
+
+    <div id="auction" class="auction-flex auction-all">
+            <div class="auction-flex">
+                <div class="auction-image">
+                    <img class="auction-image" src="{{auction.image_url}}">
+                </div>
+
+                <div class="auction-labels">
+                    <h4>{{auction.name}}</h4>
+                    <p>{{auction.description}}</p>
+                    <h5>$ {{auction.price}}</h5>
+                    <span>Posted in: {{auction.date_time}}</span>
+                </div>
+            </div>
+
+            <div data-auction_id="{{auction.id}}" class="button-bid">
+                <a>Bid</a>
+            </div>   
+            
+            <div>
+                <h4>Expires in: 04:05:15</h4>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

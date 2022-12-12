@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2>Create Listing</h2>
+    <div class="form-group">
+        <form class="flex-column" action="" method="post">
+            {% csrf_token %}
+            <label>Title<input class="form-control form-control-lg" type="text" name="title"></label>
+            <label>Description<input class="form-control form-control-lg" type="text" name="description"></label>
+            <label>Initial bid<input class="form-control form-control-lg" type="number" name="init_bid"></label>
+            <label>Image URL<input class="form-control form-control-lg" type="text" name="image_url"></label>
+            <label>Category<input class="form-control form-control-lg" type="category" name="category"></label>
+            <input class="form-control form-control-lg" type="submit" value="Create">
+        </form>
+    </div>
+{% endblock %}
