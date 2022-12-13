@@ -58,16 +58,18 @@
                     <p>Be the first to set a bid</p>
                 {% endif %}
 
+                <div class="form-group" style="display:flex; flex-direction:column; ">
+
                 {% if your_bid == True %}
                         <div>
                             <div class="btn btn-success btn-placebid" data-toggle="modal" data-target=""> Your bid is the last! </div>
                         </div>
                 {% else %}
                     {% if user_auction == False %}
-                        <div class="form-group" style="display:flex; flex-direction:column; ">
-                            <form action="" method="post">
+                    <form action="" method="post">
+                        {% csrf_token %}
                                 <input class="form-control" type="number" name="bid" placeholder="Bid" required min="1">
-                                {% csrf_token %}
+                                
                                 
                                 <div class="">
                                     {% if user.is_authenticated %}
@@ -76,15 +78,18 @@
                                         <div class="btn btn-success btn-placebid" data-toggle="modal" data-target="#AuthenticateModalCenter"> Place Bid </div>
                                     {% endif %}
                                 </div> 
-                            </form>
-                        </div>
+                           
                     {% else %}
+                    <form action="closed/1" method="post">
+                        {% csrf_token %}
                     <div>
-                        <div class="btn btn-danger btn-placebid" data-toggle="modal" data-target=""> Close auction </div>
+                        <input type="submit" class="btn btn-danger btn-closebid" data-toggle="modal" data-target="" value="Close auction">
                     </div>
 
                     {% endif %}
                 {% endif %}
+                    </form>
+                </div>
 
             </div>
         </div>
@@ -95,8 +100,6 @@
            
         </div>
     </div>
-
-    
     
     <div class="div-box flex flex-column">
         <h4>Bids</h4>
@@ -113,11 +116,6 @@
         
     </div>
 
-    <div>
-        
-    </div>
-
-    
 
 {% else %}
     <h4>{{msg}}</h4>

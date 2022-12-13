@@ -17,9 +17,7 @@ def index(request):
          
     return render(request, "auctions/index.html", {
         "auctions": auctions
-        })
-    
-
+        })  
 
 def login_view(request):
     global origin
@@ -49,13 +47,11 @@ def login_view(request):
         origin = ""
         return render(request, "auctions/login.html")
 
-
 def logout_view(request):
     logout(request)
     global login_user
     login_user = None
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -82,7 +78,6 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
-
 
 def create_listing(request):
     
@@ -122,8 +117,6 @@ def list_auction(request, id):
         last_bid = bids.last()
     else:
         last_bid = None
-
-    
     
     if request.method == 'POST':
         
@@ -237,12 +230,19 @@ def list_auction(request, id):
             return render(request, "auctions/listauction.html", {
                 "msg": "This Auction don't exist!"
             } )
-        
-        
-        
+                 
 def watchlist(request):
     auctions = Auction.objects.all()
          
     return render(request, "auctions/index.html", {
         "auctions": auctions
         })
+    
+def list_closed(request, id):
+    
+    if request.method == "POST":
+        
+        
+        return render(request, "auctions/listclosed.html",{
+            "msg": "OK"})
+        

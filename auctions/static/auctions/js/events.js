@@ -4,7 +4,7 @@ function listAuction(id){
 }
 
 addEventListener('DOMContentLoaded', function(){
-
+    
     var auctions = document.querySelectorAll('.button-bid');
     var auctions_array = [...auctions];
     auctions_array.forEach(auction => {
@@ -12,7 +12,12 @@ addEventListener('DOMContentLoaded', function(){
             id = auction.dataset.auction_id;
             listAuction(id);
         };
-    });    
+    });  
     
 });
+
+
+
+
+
 
