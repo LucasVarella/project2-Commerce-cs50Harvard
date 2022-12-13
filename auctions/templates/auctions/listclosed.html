@@ -1,6 +1,12 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+
+    {% if msg %}
+        <div class="alert {{alert_class}}">{{ msg }}</div>
+            
+    {% endif %}
+
 <div class="div-box">
 
     <div class="flex flex-row auction-all-open"> 
@@ -10,7 +16,7 @@
         
 
         <div class="auction-labels">
-            {{msg}}
+    
             <h2>{{auction.name}}</h2>
             <p>{{auction.description}}</p>
             {% if auction.price > auction.init_bid %}

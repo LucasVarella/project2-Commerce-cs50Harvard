@@ -239,10 +239,13 @@ def watchlist(request):
         })
     
 def list_closed(request, id):
+    auction = Auction.objects.get(pk=id)
+    bids = Bid.objects.filter(auction = id)
     
     if request.method == "POST":
         
         
         return render(request, "auctions/listclosed.html",{
-            "msg": "OK"})
+            "auction": auction, "msg": f"Auction Closed! The higher bid pertence to {bids.last().user}", "alert_class": "alert-success"
+            })
         

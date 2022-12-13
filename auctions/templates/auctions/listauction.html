@@ -12,7 +12,6 @@
 
         {% if msg %}
             <div class="alert {{alert_class}}">{{ msg }}</div>
-            {{teste}}
             
         {% endif %}
 
@@ -80,7 +79,7 @@
                                 </div> 
                            
                     {% else %}
-                    <form action="closed/1" method="post">
+                    <form action="closed/{{auction.id}}" method="post">
                         {% csrf_token %}
                     <div>
                         <input type="submit" class="btn btn-danger btn-closebid" data-toggle="modal" data-target="" value="Close auction">
