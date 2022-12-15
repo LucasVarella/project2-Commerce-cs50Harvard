@@ -2,70 +2,38 @@
 
 {% block body %}
 
-    {% if msg %}
-        <div class="alert {{alert_class}}">{{ msg }}</div>
-            
-    {% endif %}
-
 <div class="div-box">
 
-    <div class="flex flex-row auction-all-open"> 
-    
-       
-        <img class="auction-image-bigger" src="{{auction.image_url}}"> 
+    {% if msg_delete %}
+        <div class="alert {{alert_class}}">{{ msg_delete }}</div> 
+        <a href="{% url 'index' %}">See Active Listings</a>
+    {% else %}
+
+        <div class="flex flex-row auction-all-open"> 
         
+            <img class="auction-image-bigger" src="{{auction.image_url}}"> 
+            
 
-        <div class="auction-labels">
-    
-            <h2>{{auction.name}}</h2>
-            <p>{{auction.description}}</p>
-            {% if auction.price > auction.init_bid %}
-                <h4>Current bid: ${{auction.price}}</h4>
-            {% else %}
-                <h4> Initial bid: ${{auction.init_bid}}</h4>
-                <p>Be the first to set a bid</p>
-            {% endif %}
-
-            <div class="form-group" style="display:flex; flex-direction:column; ">
-                <form action="" method="post">
-                    {% csrf_token %}
-
-            {% if your_bid == True %}
-                    <div>
-                        <div class="btn btn-success btn-placebid" data-toggle="modal" data-target=""> Your bid is the last! </div>
-                    </div>
-            {% else %}
-                {% if user_auction == False %}
-                    
-                            <input class="form-control" type="number" name="bid" placeholder="Bid" required min="1">
+            <div class="auction-labels">
+        
+                <h2>{{auction.name}}</h2>
+                <p>{{auction.description}}</p>
+                
+                    <h6>Last bid: ${{auction.price}}</h6>     
+                    <h6 style="padding-bottom: 10px;"> Initial bid: ${{auction.init_bid}}</h6>
                             
-                            
-                            <div class="">
-                                {% if user.is_authenticated %}
-                                    <input class="btn btn-success btn-placebid" type="submit" value="Place Bid">  
-                                {% else %}
-                                    <div class="btn btn-success btn-placebid" data-toggle="modal" data-target="#AuthenticateModalCenter"> Place Bid </div>
-                                {% endif %}
-                            </div> 
-                       
-                {% else %}
-                <div>
-                    <div class="btn btn-danger">Close auction</div>
-                </div>
+                                
+                <div class="alert {{alert_class}}">{{ msg }}✨</div>                                           
 
-                {% endif %}
-            {% endif %}
-                </form>
             </div>
-
         </div>
-    </div>
-    <div class="border-top my-3"></div> 
-    <div class="flex flex-row" style="justify-content: right; padding-top: 5px;">
-        <h6>Posted in: {{auction.date_time}}</h6>
-        <h6>By: {{auction.user}}</h6>
-       
-    </div>
+        <div class="border-top my-3"></div> 
+        <div class="flex flex-row" style="justify-content: right; padding-top: 5px;">
+            <h6>Posted in: {{auction.date_time}}</h6>
+            <h6>By: {{auction.user}}</h6>
+        
+        </div>
+    {% endif %}
 </div>
 
 {% endblock %}

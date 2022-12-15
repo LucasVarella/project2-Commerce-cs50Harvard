@@ -37,7 +37,36 @@
             </div>
         </div>
     {% endif %}
-    
+
+    {% if request.user == auction.user %}
+        <form action="closed/{{auction.id}}" method="post">
+            {% csrf_token %}
+        <!-- Modal -->
+        <div class="modal fade" id="CloseModalCenter" tabindex="-1" role="dialog" aria-labelledby="CloseModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="CloseteModalLongTitle">Are you sure you want to close the auction?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <p style="padding-bottom: 0px;">The highest bid will be declared the winner and the auction will be closed!</p>
+                    <div>
+                        <h6>Last bid: $ {{auction.price}}</h6> 
+                        <h6>By: {{bids.last.user}}</h6> 
+                    </div>
+                </div>
+                <div class="modal-footer" >
+                    <button type="submit" class="btn-danger" style="border: none; border-radius: 5px; padding: 8px; color: white; text-decoration: none;">Yes, close action</button>
+                    <div class="btn-secondary" data-dismiss="modal" style="border: none; border-radius: 5px; padding: 8px; color: white; text-decoration: none;">Cancel</div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </form>
+    {% endif %}
 
     <div class="div-box">
 
@@ -54,7 +83,6 @@
                     <h4>Current bid: ${{auction.price}}</h4>
                 {% else %}
                     <h4> Initial bid: ${{auction.init_bid}}</h4>
-                    <p>Be the first to set a bid</p>
                 {% endif %}
 
                 <div class="form-group" style="display:flex; flex-direction:column; ">
@@ -79,10 +107,10 @@
                                 </div> 
                            
                     {% else %}
-                    <form action="closed/{{auction.id}}" method="post">
-                        {% csrf_token %}
+                    
+
                     <div>
-                        <input type="submit" class="btn btn-danger btn-closebid" data-toggle="modal" data-target="" value="Close auction">
+                        <div class="btn btn-danger btn-closebid" data-toggle="modal" data-target="#CloseModalCenter">Close auction</div>
                     </div>
 
                     {% endif %}
@@ -100,19 +128,20 @@
         </div>
     </div>
     
-    <div class="div-box flex flex-column">
-        <h4>Bids</h4>
-        <div class=" flex flex-column-reverse">
-            {% for bid in bids %}
-                <div class="">
-                    <div>$ {{bid.value}}</div>
-                    <div>{{bid.user}}</div>
-                    <div class="border-top my-3"></div>
+    <div class="div-box">
+        <h4 style="padding-bottom: 20px;">Bids</h4>
+        <div class="" style="height: 400px; overflow:auto">
+            <div class="flex flex-column-reverse">
+                {% for bid in bids %}
+                    <div class="">
+                        <div>$ {{bid.value}}</div>
+                        <div>{{bid.user}}</div>
+                        <div class="border-top my-3"></div>
 
-                </div>
-            {% endfor %}
+                    </div>
+                {% endfor %}
+            </div> 
         </div>
-        
     </div>
 
 

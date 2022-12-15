@@ -14,7 +14,8 @@ origin = ""
 def index(request):
     
     auctions = Auction.objects.all()
-         
+        
+        
     return render(request, "auctions/index.html", {
         "auctions": auctions
         })  
@@ -107,8 +108,13 @@ def create_listing(request):
             })
             
 def list_auction(request, id):
+    try:
+        
+        bids = Bid.objects.filter(auction= id)
+        last_bid = bids.last()
+    except: 
+        last_bid = None
     
-    bids = Bid.objects.filter(auction= id)
     id_auction = id
     user_auction = False
     your_bid = False
@@ -197,34 +203,50 @@ def list_auction(request, id):
         
         try:
             auction = Auction.objects.get(id= id)
+            
         except:
             auction = None
         
         if auction is not None:
             
-            if request.user.is_authenticated:
+            if auction.active == True:
                 
-                if request.user == auction.user:
+                if request.user.is_authenticated:
                     
-                    return render(request, "auctions/listauction.html",{
-                                    "auction": auction, "bids": bids, "user_auction": True
-                                })
-                else:
-                    
-                    if last_bid.user == request.user:
-                        your_bid = True
-                        return render(request, "auctions/listauction.html",{    
-                                        "auction": auction, "msg": "Keep an eye on the auction!", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid
+                    if request.user == auction.user:
+                        
+                        return render(request, "auctions/listauction.html",{
+                                        "auction": auction, "bids": bids, "user_auction": True
                                     })
                     else:
                         
-                        return render(request, "auctions/listauction.html",{
+                        if last_bid is not None:
+                            
+                            if last_bid.user == request.user:
+                                your_bid = True
+                                return render(request, "auctions/listauction.html",{    
+                                                "auction": auction, "msg": "Keep an eye on the auction! 👀", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid
+                                            })
+                            
+                            else:
+                                return render(request, "auctions/listauction.html",{
+                                            "auction": auction, "bids": bids, "user_auction": False
+                                        })
+                        else:
+                            
+                            return render(request, "auctions/listauction.html",{
+                                            "auction": auction, "bids": bids, "user_auction": False
+                                        })
+                else:
+                    return render(request, "auctions/listauction.html",{
                                         "auction": auction, "bids": bids, "user_auction": False
                                     })
+            
             else:
-                return render(request, "auctions/listauction.html",{
-                                    "auction": auction, "bids": bids, "user_auction": False
-                                })
+                return render(request, "auctions/listclosed.html",{
+                                        "auction": auction, "bids": bids, "user_auction": False, "msg": f"This auction is closed, the winning bid belongs to {bids.last().user}", "alert_class": "alert-success"
+                                    })
+                
         
         else:
             return render(request, "auctions/listauction.html", {
@@ -239,13 +261,48 @@ def watchlist(request):
         })
     
 def list_closed(request, id):
-    auction = Auction.objects.get(pk=id)
-    bids = Bid.objects.filter(auction = id)
     
+    try:
+        auction = Auction.objects.get(pk=id)
+    except:
+        auction = False
+    
+    if auction != False:
+        
+        try:
+            bids = Bid.objects.filter(auction = id)
+        except:
+            bids = False
+         
     if request.method == "POST":
         
+        if bids:
+            auction.active = False
+            auction.save()
+            
+            return render(request, "auctions/listclosed.html",{
+                "auction": auction, "msg": f"Auction is closed, the winning bid belongs to {bids.last().user}", "alert_class": "alert-success"
+                })
         
-        return render(request, "auctions/listclosed.html",{
-            "auction": auction, "msg": f"Auction Closed! The higher bid pertence to {bids.last().user}", "alert_class": "alert-success"
+        else:
+            
+            auction.delete()
+            
+            return render(request, "auctions/listclosed.html", {
+                "msg_delete": "Auction delete!", "alert_class": "alert-success"
             })
         
+    else:
+       
+        if auction == False:
+                return HttpResponseRedirect("/")
+        else:
+            
+            if auction.active == False:
+                
+                return render(request, "auctions/listclosed.html",{
+                    "auction": auction, "msg": f"This auction is closed, the winning bid belongs to {bids.last().user}", "alert_class": "alert-success"
+                    })
+                
+            else:
+                return HttpResponseRedirect("/")

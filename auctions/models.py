@@ -15,6 +15,7 @@ class Auction(models.Model):
     price = models.FloatField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=False)
     category = models.CharField(max_length = 60, blank=True)
+    active = models.BooleanField(default=True)
     
     
     def __str__(self) -> str:
