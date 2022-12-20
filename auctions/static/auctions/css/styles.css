@@ -7,6 +7,14 @@ body {
     padding-top: 1.5rem;
 }
 
+p{
+    font-size: 19px;
+}
+
+h5{
+    margin-bottom: 0px;
+}
+
 .flex{
     display: flex;
     flex-wrap: wrap;
@@ -24,6 +32,7 @@ body {
 .flex-row{
     flex-direction: row;
     align-items: center;
+    
              
 }
 
@@ -48,21 +57,33 @@ body {
 
 .auction-all-open{
     justify-content: space-around;
+    padding-bottom: 24px;
     
-    align-items: center;
 }
 
 .auction-image{
     width: 200px;
+    border-radius: 13px;
 }
 
 .auction-image-bigger{
     max-width: 22rem;
 	height:auto;
+    border-radius: 13px;
 }
 
 .auction-labels{
-    padding-left: 2rem;
+    width: 500px;
+    max-width: 500px;
+    padding-left: 20px;
+
+
+}
+
+.form-div{
+    max-width: 150px;
+    text-align: center;
+   
 }
 
 .button-bid{

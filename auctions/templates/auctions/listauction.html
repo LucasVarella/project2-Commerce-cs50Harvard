@@ -3,19 +3,13 @@
 {% block body %}
 
 {% if auction.id != None %}
-    <style>
-       
-    </style>
-    {% if user.is_authenticated %}
-        <div>Add Watchlist</div>
-        <div>{{w}}</div>
 
-        {% if msg %}
-            <div class="alert {{alert_class}}">{{ msg }}</div>
-            
-        {% endif %}
+    {% if msg %}
+    <div class="alert {{alert_class}}">{{ msg }}</div>
 
-    {% else %}
+    {% endif %}
+
+    {% if user.is_authenticated == False %}
         <!-- Modal -->
         <div class="modal fade" id="AuthenticateModalCenter" tabindex="-1" role="dialog" aria-labelledby="AuthenticateModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -29,6 +23,7 @@
                 <div class="modal-body">
                     You need to authenticate first!
                 </div>
+
                 <div class="modal-footer" >
                     <div class="btn btn-secondary"><a href="{% url 'login' %}" style="color: white; text-decoration: none;">Login</a></div>
                     <div class="btn btn-primary"><a href="{% url 'register' %}" style="color: white; text-decoration: none;">Register</a></div>
@@ -37,6 +32,7 @@
             </div>
         </div>
     {% endif %}
+
 
     {% if request.user == auction.user %}
         <form action="closed/{{auction.id}}" method="post">
@@ -69,53 +65,75 @@
     {% endif %}
 
     <div class="div-box">
+        <div class="flex flex-row" style="justify-content: right;">
 
+            {% if user.is_authenticated %}
+                {% if request.user != auction.user %}
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <input hidden type="text" value="not" name="watchlist">
+                        {% if in_watchlist != True %}
+                            <button type="submit">Add to watchlist</button>
+                        {% else %}
+                            <button type="submit">Remove to watchlist</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            {% endif %}
+            
+        </div>
         <div class="flex flex-row auction-all-open"> 
         
-           
             <img class="auction-image-bigger" src="{{auction.image_url}}"> 
             
 
-            <div class="auction-labels">
-                <h2>{{auction.name}}</h2>
-                <p>{{auction.description}}</p>
-                {% if auction.price > auction.init_bid %}
-                    <h4>Current bid: ${{auction.price}}</h4>
-                {% else %}
-                    <h4> Initial bid: ${{auction.init_bid}}</h4>
-                {% endif %}
-
-                <div class="form-group" style="display:flex; flex-direction:column; ">
-
-                {% if your_bid == True %}
-                        <div>
-                            <div class="btn btn-success btn-placebid" data-toggle="modal" data-target=""> Your bid is the last! </div>
-                        </div>
-                {% else %}
-                    {% if user_auction == False %}
-                    <form action="" method="post">
-                        {% csrf_token %}
-                                <input class="form-control" type="number" name="bid" placeholder="Bid" required min="1">
-                                
-                                
-                                <div class="">
-                                    {% if user.is_authenticated %}
-                                        <input class="btn btn-success btn-placebid" type="submit" value="Place Bid">  
-                                    {% else %}
-                                        <div class="btn btn-success btn-placebid" data-toggle="modal" data-target="#AuthenticateModalCenter"> Place Bid </div>
-                                    {% endif %}
-                                </div> 
-                           
-                    {% else %}
+            <div class="auction-labels div-box">
+                <div class="flex flex-column">
+                    <h3>{{auction.name}}</h3>
+                    <p>{{auction.description}}</p>
+                </div>
+                <div class=" div-box flex flex-row">
                     
-
-                    <div>
-                        <div class="btn btn-danger btn-closebid" data-toggle="modal" data-target="#CloseModalCenter">Close auction</div>
-                    </div>
-
+                    {% if auction.price > auction.init_bid %}
+                        <h5>Current bid: ${{auction.price}}</h5>
+                    {% else %}
+                        <h5> Initial bid: ${{auction.init_bid}}</h5>
                     {% endif %}
-                {% endif %}
-                    </form>
+
+                    <div class="form-group flex flex-column form-div">
+
+                        {% if your_bid == True %}
+                                <div>
+                                    <div class="btn btn-success btn-placebid" data-toggle="modal" data-target=""> Your bid is the last! </div>
+                                </div>
+                        {% else %}
+                            {% if user_auction == False %}
+                                <form action="" method="post">
+                                    {% csrf_token %}
+                                         <div class="">
+                                            <input class="form-control" type="number" name="bid" placeholder="Value" required min="1">
+                                            
+                                            
+                                            <div class="">
+                                                {% if user.is_authenticated %}
+                                                    <input class="btn btn-success btn-placebid" type="submit" value="Place Bid">  
+                                                {% else %}
+                                                    <div class="btn btn-success btn-placebid" data-toggle="modal" data-target="#AuthenticateModalCenter"> Place Bid </div>
+                                                {% endif %}
+                                            </div> 
+                                        </div>
+                                
+                            {% else %}
+                            
+    
+                                <div>
+                                    <div class="btn btn-danger btn-closebid" data-toggle="modal" data-target="#CloseModalCenter">Close auction</div>
+                                </div>
+    
+                            {% endif %}
+                        {% endif %}
+                            </form>
+                    </div>
                 </div>
 
             </div>
@@ -130,7 +148,7 @@
     
     <div class="div-box">
         <h4 style="padding-bottom: 20px;">Bids</h4>
-        <div class="" style="height: 400px; overflow:auto">
+        <div class="" style="max-height: 250px; overflow:auto">
             <div class="flex flex-column-reverse">
                 {% for bid in bids %}
                     <div class="">
@@ -139,11 +157,73 @@
                         <div class="border-top my-3"></div>
 
                     </div>
+                {% empty %}
+                    <div> No bids yet</div>
                 {% endfor %}
             </div> 
         </div>
     </div>
 
+    <div class="div-box">
+        <h4 style="padding-bottom: 20px;">Comments</h4>
+        <div class="" style="max-height: 400px; overflow:auto">
+
+            {% if user.is_authenticated == False %}
+
+                 <div class="flex flex-column">
+                    {% for comment in comments %}
+                        <div style="background-color: greenyellow; margin-bottom: 15px;">
+                            <span> <strong>{{comment.user}}</strong></span>
+                            <p>{{comment.text}}</p>  
+                        </div>
+                    {% empty %}
+                    <div style="padding-bottom: 20px;">Be the first to comment in this auction!</div>
+                    {% endfor %}
+                </div>
+
+                <div class="" data-toggle="modal" data-target="#AuthenticateModalCenter"><a>Authenticate to make a comment!</a></div>
+
+            {% else %} 
+
+                {% if request.user == auction.user %}
+
+                    <div class="flex flex-column">
+                        {% for comment in comments %}
+                        <div style="background-color: greenyellow; margin-bottom: 15px;">
+                            <span> <strong>{{comment.user}}</strong></span>
+                            <p>{{comment.text}}</p>  
+                        </div>
+                        {% empty %}
+                        <div style="padding-bottom: 20px;">No comments yet</div>
+                        {% endfor %}
+                    </div>
+
+                {% else %}
+                    <div class="flex flex-column">
+                        {% for comment in comments %}
+                            <div style="background-color: greenyellow; margin-bottom: 15px;">
+                                <span> <strong>{{comment.user}}</strong></span>
+                                <p>{{comment.text}}</p>  
+                            </div>
+                        {% empty %}
+                        <div style="padding-bottom: 20px;">Be the first to comment in this auction!</div>
+                        {% endfor %}
+                    </div>
+                   
+        </div>   
+            <form action="" method="post">
+                <div class="group-form" style="padding-top: 28px;">
+                    {% csrf_token %}
+                        <input class="form-control" type="text" name="text_comment" placeholder="Escreva aqui">
+                        <input class="form-control" type="submit" value="Send">
+                </div>
+            </form>
+
+                {% endif %}
+               
+                
+            {% endif %}       
+    </div>
 
 {% else %}
     <h4>{{msg}}</h4>

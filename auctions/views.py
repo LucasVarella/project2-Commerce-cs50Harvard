@@ -1,13 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
 from datetime import datetime
 
-from .models import User, Auction, Bid
+from .models import User, Auction, Bid, Comment, Watchlist
 
 origin = ""
 
@@ -17,9 +17,9 @@ def index(request):
         
         
     return render(request, "auctions/index.html", {
-        "auctions": auctions
+        "auctions": auctions, "title": "Active Listings"
         })  
-
+    
 def login_view(request):
     global origin
     if request.method == "POST":
@@ -90,7 +90,7 @@ def create_listing(request):
         auction.save()   
         auctions = Auction.objects.all()
         return render(request, "auctions/index.html", {
-            "auctions": auctions
+            "auctions": auctions, "title": "Active Listings"
         })
     
     # GET  
@@ -108,95 +108,163 @@ def create_listing(request):
             })
             
 def list_auction(request, id):
+    
+    # Catch the last bid, if have
     try:
-        
         bids = Bid.objects.filter(auction= id)
         last_bid = bids.last()
     except: 
         last_bid = None
     
+    # Catch comments of auction, if have
+    try:
+        comments = Comment.objects.filter(auction= id)
+    except: 
+        comments = None
+    
+    # Parameters to verifications
     id_auction = id
     user_auction = False
     your_bid = False
     
-    if bids.last():   
-        last_bid = bids.last()
-    else:
-        last_bid = None
     
     if request.method == 'POST':
         
-        bid_value = float(request.POST['bid'])
         auction = Auction.objects.get(pk= id_auction)
         
-        if request.user.is_authenticated:
+        # Catch watchlist status   
+        try:
+            watchlist_item = Watchlist.objects.get(user= request.user, auction= auction)
+            in_watchlist = True   
+        except:
+            in_watchlist = False
+        
+        # Verify if post's origin by add a whatchlist
+        try:
+            watchlist = request.POST['watchlist']
+        except:
+            watchlist = False
+        
+        # WATCHLIST POST    
+        if watchlist != False:
             
-            # Verify if the user loged is the user that created the auction 
-            if request.user == auction.user:
-                user_auction = True
-                return render(request, "auctions/listauction.html",{
-                                    "auction": auction, "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction
-                                })
-            else:
+            try:
+                watchlist_item = Watchlist.objects.get(user= request.user, auction= auction)
+                watchlist_item.delete()
+                in_watchlist = False  
+        
+            except:  
+                add_item = Watchlist(user= request.user, auction= auction)
+                add_item.save()
+                in_watchlist = True      
+            
+            return render(request, "auctions/listauction.html",{
+                                            "auction": auction, "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                        })   
+        else:
+            
+            # Verify if post's origin by add a comment
+            try:
+                comment = request.POST['text_comment']
+            except:
+                comment = False
+            
+            # BID POST    
+            if comment == False:
                 
-                user_auction = False  
-                # Verify if have bids in the auction
-                if last_bid is not None:
-    
-                    # Verify if the last bid pertences to loged user
-                    if last_bid.user == request.user:
-                        your_bid = True
-                        return render(request, "auctions/listauction.html",{    
-                                        "auction": auction, "msg": "Your bid is the last", "alert_class": "alert-danger", "bids": bids, "your_bid": your_bid
-                                    })
-                        
+                bid_value = float(request.POST['bid'])
+                if request.user.is_authenticated:
+                    
+                    # Verify if the user loged is the user that created the auction 
+                    if request.user == auction.user:
+                        user_auction = True
+                        return render(request, "auctions/listauction.html",{
+                                            "auction": auction, "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                        })
                     else:
                         
-                        # Verify if the bid is higher than the last bid
-                        if bid_value > auction.price:
+                        user_auction = False  
+                        # Verify if have bids in the auction
+                        if last_bid is not None:
+            
+                            # Verify if the last bid pertences to loged user
+                            if last_bid.user == request.user:
+                                your_bid = True
+                                return render(request, "auctions/listauction.html",{    
+                                                "auction": auction, "msg": "Your bid is the last", "alert_class": "alert-danger", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist
+                                            })
+                                
+                            else:
+                                
+                                # Verify if the bid is higher than the last bid
+                                if bid_value > auction.price:
+                                    
+                                    new_bid = Bid(value=bid_value, user= request.user, auction = auction)
+                                    new_bid.save()
+                                    auction.price = bid_value
+                                    auction.save()
+                                    your_bid = True
+                                    return render(request, "auctions/listauction.html",{
+                                        "auction": auction, "msg": "Your bid has been successfully registered!", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist
+                                    })
+                                    
+                                else:
+                                    return render(request, "auctions/listauction.html",{
+                                        "auction": auction, "msg": "Your bid needs to be higher than the last bid", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                    })
+                        
+                        # If is the first bid in the auction           
+                        else:
                             
-                            new_bid = Bid(value=bid_value, user= request.user, auction = auction)
-                            new_bid.save()
-                            auction.price = bid_value
-                            auction.save()
-                            your_bid = True
+                            # Verify if bid greater than or equal to the starting bid
+                            if bid_value >= auction.init_bid:
+                                new_bid = Bid(value=bid_value, user= request.user, auction = auction)
+                                new_bid.save()
+                                auction.price = bid_value
+                                auction.save()
+                                your_bid = True
+                                
+                                return render(request, "auctions/listauction.html",{
+                                    "auction": auction, "msg": "Your bid has been successfully registered!", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist
+                                })
+                            
+                            else:
+                                
+                                return render(request, "auctions/listauction.html",{
+                                                "auction": auction, "msg": "Your bid needs to be greater than or equal to the starting bid", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                            })
+                                
+                # If user is not authenticated                               
+                else:
+                    user_auction = False  
+                    return render(request, "auctions/listauction.html",{
+                                "auction": auction, "msg": "Your need to make a login first", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments
+                            })   
+                    
+            # Comment POST                
+            else:        
+            
+                if request.user.is_authenticated:
+                        
+                        if request.user != auction.user:
+                            comment = Comment(text= request.POST['text_comment'], user= request.user, auction= auction)
+                            comment.save()
+                            comments = Comment.objects.filter(auction= id)
+                            
                             return render(request, "auctions/listauction.html",{
-                                "auction": auction, "msg": "Your bid has been successfully registered!", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid
-                            })
+                                            "auction": auction, "msg": "Comment add with sucess!", "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                        })
                             
                         else:
                             return render(request, "auctions/listauction.html",{
-                                "auction": auction, "msg": "Your bid needs to be higher than the last bid", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction
-                            })
-                
-                # If is the first bid in the auction           
-                else:
+                                            "auction": auction, "msg": "Your can't comment to yourself", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                        })
+                else: 
+                    return render(request, "auctions/listauction.html",{
+                                    "auction": auction, "msg": "Your need to authenticated first!", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments
+                                })
                     
-                    # Verify if bid greater than or equal to the starting bid
-                    if bid_value >= auction.init_bid:
-                        new_bid = Bid(value=bid_value, user= request.user, auction = auction)
-                        new_bid.save()
-                        auction.price = bid_value
-                        auction.save()
-                        your_bid = True
-                        
-                        return render(request, "auctions/listauction.html",{
-                            "auction": auction, "msg": "Your bid has been successfully registered!", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid
-                        })
                     
-                    else:
-                         
-                        return render(request, "auctions/listauction.html",{
-                                        "auction": auction, "msg": "Your bid needs to be greater than or equal to the starting bid", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction
-                                    })
-                        
-        # If user is not authenticated                               
-        else:
-            user_auction = False  
-            return render(request, "auctions/listauction.html",{
-                        "auction": auction, "msg": "Your need to make a login first", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction
-                    })
-            
             
     # If method = "GET"  
     else:
@@ -209,6 +277,13 @@ def list_auction(request, id):
         
         if auction is not None:
             
+            # Catch watchlist status   
+            try:
+                watchlist_item = Watchlist.objects.get(user= request.user, auction= auction)
+                in_watchlist = True   
+            except:
+                in_watchlist = False
+                
             if auction.active == True:
                 
                 if request.user.is_authenticated:
@@ -216,7 +291,7 @@ def list_auction(request, id):
                     if request.user == auction.user:
                         
                         return render(request, "auctions/listauction.html",{
-                                        "auction": auction, "bids": bids, "user_auction": True
+                                        "auction": auction, "bids": bids, "user_auction": True, "comments":  comments, "in_watchlist": in_watchlist
                                     })
                     else:
                         
@@ -225,26 +300,26 @@ def list_auction(request, id):
                             if last_bid.user == request.user:
                                 your_bid = True
                                 return render(request, "auctions/listauction.html",{    
-                                                "auction": auction, "msg": "Keep an eye on the auction! 👀", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid
+                                                "auction": auction, "msg": "Keep an eye on the auction! 👀", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist
                                             })
                             
                             else:
                                 return render(request, "auctions/listauction.html",{
-                                            "auction": auction, "bids": bids, "user_auction": False
+                                            "auction": auction, "bids": bids, "user_auction": False, "comments":  comments, "in_watchlist": in_watchlist
                                         })
                         else:
                             
                             return render(request, "auctions/listauction.html",{
-                                            "auction": auction, "bids": bids, "user_auction": False
+                                            "auction": auction, "bids": bids, "user_auction": False, "comments":  comments, "in_watchlist": in_watchlist
                                         })
                 else:
                     return render(request, "auctions/listauction.html",{
-                                        "auction": auction, "bids": bids, "user_auction": False
+                                        "auction": auction, "bids": bids, "user_auction": False, "comments":  comments
                                     })
             
             else:
                 return render(request, "auctions/listclosed.html",{
-                                        "auction": auction, "bids": bids, "user_auction": False, "msg": f"This auction is closed, the winning bid belongs to {bids.last().user}", "alert_class": "alert-success"
+                                        "auction": auction, "bids": bids, "user_auction": False, "msg": f"This auction is closed, the winning bid belongs to {bids.last().user}", "alert_class": "alert-success", "comments":  comments, "in_watchlist": in_watchlist
                                     })
                 
         
@@ -254,10 +329,14 @@ def list_auction(request, id):
             } )
                  
 def watchlist(request):
-    auctions = Auction.objects.all()
+    
+    watchlist = Watchlist.objects.filter(user= request.user)
+    auctions = []
+    for item in watchlist:
+        auctions.append(item.auction)
          
     return render(request, "auctions/index.html", {
-        "auctions": auctions
+        "auctions": auctions, "title": "My Watchlist"
         })
     
 def list_closed(request, id):
@@ -306,3 +385,11 @@ def list_closed(request, id):
                 
             else:
                 return HttpResponseRedirect("/")
+            
+def my_auctions(request):
+    
+    my_auctions = Auction.objects.filter(user= request.user)
+           
+    return render(request, "auctions/index.html", {
+        "auctions": my_auctions, "title": "My Auctions"
+        })

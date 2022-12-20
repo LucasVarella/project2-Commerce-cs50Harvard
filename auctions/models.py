@@ -3,7 +3,7 @@ from django.db import models
 from datetime import datetime
 
 class User(AbstractUser):
-   watchlist = []
+   pass
    
 class Auction(models.Model):
     id = models.AutoField(primary_key=True)
@@ -20,16 +20,18 @@ class Auction(models.Model):
     
     def __str__(self) -> str:
         return f"{self.name} | By: {self.user}\n"     
-   
+
+class Watchlist(models.Model):
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=False)
+
 class Bid(models.Model):
     value = models.FloatField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=False)
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, default=False)
    
 class Comment(models.Model):
-    text = models.CharField(max_length = 150)
+    text = models.CharField(max_length = 550)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=False)
-    
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, default=False)
   
-
-
