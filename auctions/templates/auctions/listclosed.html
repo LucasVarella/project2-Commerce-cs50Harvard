@@ -9,6 +9,22 @@
         <a href="{% url 'index' %}">See Active Listings</a>
     {% else %}
 
+    <div class="flex flex-row" style="justify-content: right;">
+        {% if user.is_authenticated %}
+            {% if request.user != auction.user %}
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input hidden type="text" value="not" name="watchlist">
+                    {% if in_watchlist != True %}
+                        <button class="btn btn-outline-green" type="submit">Add to watchlist</button>
+                    {% else %}
+                        <button class="btn btn-outline-red" type="submit">Remove to watchlist</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+    
         <div class="flex flex-row auction-all-open"> 
         
             <img class="auction-image-bigger" src="{{auction.image_url}}"> 

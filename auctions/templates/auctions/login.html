@@ -9,7 +9,7 @@
     {% endif %}
     <h2>Login</h2>
 
-    <form action="{% url 'login' %}" method="post">
+    <form class="form-div" action="{% url 'login' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
             <input autofocus class="form-control" type="text" name="username" placeholder="Username">

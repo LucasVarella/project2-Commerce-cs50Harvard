@@ -4,9 +4,8 @@
 
 {% if auction.id != None %}
 
-    {% if msg %}
-    <div class="alert {{alert_class}}">{{ msg }}</div>
-
+    {% if msg_comment %}
+        <div class="alert {{alert_class}}">{{ msg_comment }}</div>
     {% endif %}
 
     {% if user.is_authenticated == False %}
@@ -73,9 +72,9 @@
                         {% csrf_token %}
                         <input hidden type="text" value="not" name="watchlist">
                         {% if in_watchlist != True %}
-                            <button type="submit">Add to watchlist</button>
+                            <button class="btn" style="color: green; border-color: green" type="submit">Add to watchlist</button>
                         {% else %}
-                            <button type="submit">Remove to watchlist</button>
+                            <button class="btn" style="color: red; border-color: red" type="submit">Remove to watchlist</button>
                         {% endif %}
                     </form>
                 {% endif %}
@@ -100,7 +99,7 @@
                         <h5> Initial bid: ${{auction.init_bid}}</h5>
                     {% endif %}
 
-                    <div class="form-group flex flex-column form-div">
+                    <div class="form-group flex flex-column form-div-bid">
 
                         {% if your_bid == True %}
                                 <div>
@@ -134,8 +133,14 @@
                         {% endif %}
                             </form>
                     </div>
+                    
                 </div>
-
+                {% if msg %}
+                     <div class="alert {{alert_class}}">{{ msg }}</div>
+                {% endif %}
+                {% if msg_last %}
+                    <div class="alert {{alert_class}}">{{ msg_last }}</div>
+                {% endif %}
             </div>
         </div>
         <div class="border-top my-3"></div> 
@@ -165,6 +170,7 @@
     </div>
 
     <div class="div-box">
+        
         <h4 style="padding-bottom: 20px;">Comments</h4>
         <div class="" style="max-height: 400px; overflow:auto">
 
@@ -172,7 +178,7 @@
 
                  <div class="flex flex-column">
                     {% for comment in comments %}
-                        <div style="background-color: greenyellow; margin-bottom: 15px;">
+                        <div style="margin-bottom: 15px;">
                             <span> <strong>{{comment.user}}</strong></span>
                             <p>{{comment.text}}</p>  
                         </div>
@@ -189,7 +195,7 @@
 
                     <div class="flex flex-column">
                         {% for comment in comments %}
-                        <div style="background-color: greenyellow; margin-bottom: 15px;">
+                        <div style="margin-bottom: 15px;">
                             <span> <strong>{{comment.user}}</strong></span>
                             <p>{{comment.text}}</p>  
                         </div>
@@ -201,7 +207,7 @@
                 {% else %}
                     <div class="flex flex-column">
                         {% for comment in comments %}
-                            <div style="background-color: greenyellow; margin-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
                                 <span> <strong>{{comment.user}}</strong></span>
                                 <p>{{comment.text}}</p>  
                             </div>
@@ -211,11 +217,13 @@
                     </div>
                    
         </div>   
-            <form action="" method="post">
-                <div class="group-form" style="padding-top: 28px;">
-                    {% csrf_token %}
-                        <input class="form-control" type="text" name="text_comment" placeholder="Escreva aqui">
-                        <input class="form-control" type="submit" value="Send">
+            <form class="form-div" action="" method="post">
+                {% csrf_token %}
+                <div class="form-group" style="padding-top: 28px;">
+                        <input class="form-control form-control-lg" type="text" name="text_comment" placeholder="Escreva aqui">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" type="submit" value="Send">
                 </div>
             </form>
 

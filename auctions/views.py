@@ -132,6 +132,13 @@ def list_auction(request, id):
         
         auction = Auction.objects.get(pk= id_auction)
         
+        your_bid = False
+        if last_bid != None:
+            if last_bid.user == request.user:
+                your_bid = True
+            else:
+                your_bid = False
+        
         # Catch watchlist status   
         try:
             watchlist_item = Watchlist.objects.get(user= request.user, auction= auction)
@@ -144,6 +151,7 @@ def list_auction(request, id):
             watchlist = request.POST['watchlist']
         except:
             watchlist = False
+        
         
         # WATCHLIST POST    
         if watchlist != False:
@@ -158,9 +166,20 @@ def list_auction(request, id):
                 add_item.save()
                 in_watchlist = True      
             
-            return render(request, "auctions/listauction.html",{
-                                            "auction": auction, "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
-                                        })   
+            if auction.active == True:
+            
+                if your_bid != True:
+                    return render(request, "auctions/listauction.html",{
+                                                    "auction": auction, "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist, "your_bid": your_bid
+                                                })
+                else:
+                    return render(request, "auctions/listauction.html",{
+                                                    "auction": auction, "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist, "your_bid": your_bid, "msg_last": "Keep an eye on the auction! 👀"
+                                                })
+            else:
+                   return render(request, "auctions/listclosed.html",{
+                                                "auction": auction, "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist, "your_bid": your_bid, "msg": f"This auction is closed, the winning bid belongs to {bids.last().user}"
+                                            })
         else:
             
             # Verify if post's origin by add a comment
@@ -191,7 +210,7 @@ def list_auction(request, id):
                             if last_bid.user == request.user:
                                 your_bid = True
                                 return render(request, "auctions/listauction.html",{    
-                                                "auction": auction, "msg": "Your bid is the last", "alert_class": "alert-danger", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist
+                                                "auction": auction, "msg": "Your bid is the last", "alert_class": "alert-danger", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist, "msg_last": "Keep an eye on the auction! 👀"
                                             })
                                 
                             else:
@@ -252,12 +271,12 @@ def list_auction(request, id):
                             comments = Comment.objects.filter(auction= id)
                             
                             return render(request, "auctions/listauction.html",{
-                                            "auction": auction, "msg": "Comment add with sucess!", "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                            "auction": auction, "msg_comment": "Comment add with sucess!", "alert_class": "alert-success", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist, "your_bid": your_bid
                                         })
                             
                         else:
                             return render(request, "auctions/listauction.html",{
-                                            "auction": auction, "msg": "Your can't comment to yourself", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist
+                                            "auction": auction, "msg": "Your can't comment to yourself", "alert_class": "alert-danger", "bids": bids, "user_auction": user_auction, "comments":  comments, "in_watchlist": in_watchlist, "your_bid": your_bid
                                         })
                 else: 
                     return render(request, "auctions/listauction.html",{
@@ -291,7 +310,7 @@ def list_auction(request, id):
                     if request.user == auction.user:
                         
                         return render(request, "auctions/listauction.html",{
-                                        "auction": auction, "bids": bids, "user_auction": True, "comments":  comments, "in_watchlist": in_watchlist
+                                        "auction": auction, "bids": bids, "user_auction": True, "comments":  comments
                                     })
                     else:
                         
@@ -300,7 +319,7 @@ def list_auction(request, id):
                             if last_bid.user == request.user:
                                 your_bid = True
                                 return render(request, "auctions/listauction.html",{    
-                                                "auction": auction, "msg": "Keep an eye on the auction! 👀", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist
+                                                "auction": auction, "msg_last": "Keep an eye on the auction! 👀", "alert_class": "alert-success", "bids": bids, "your_bid": your_bid, "comments":  comments, "in_watchlist": in_watchlist
                                             })
                             
                             else:
@@ -318,6 +337,7 @@ def list_auction(request, id):
                                     })
             
             else:
+                
                 return render(request, "auctions/listclosed.html",{
                                         "auction": auction, "bids": bids, "user_auction": False, "msg": f"This auction is closed, the winning bid belongs to {bids.last().user}", "alert_class": "alert-success", "comments":  comments, "in_watchlist": in_watchlist
                                     })
@@ -335,8 +355,8 @@ def watchlist(request):
     for item in watchlist:
         auctions.append(item.auction)
          
-    return render(request, "auctions/index.html", {
-        "auctions": auctions, "title": "My Watchlist"
+    return render(request, "auctions/watchlist.html", {
+        "auctions": auctions
         })
     
 def list_closed(request, id):
@@ -390,6 +410,6 @@ def my_auctions(request):
     
     my_auctions = Auction.objects.filter(user= request.user)
            
-    return render(request, "auctions/index.html", {
-        "auctions": my_auctions, "title": "My Auctions"
+    return render(request, "auctions/myauctions.html", {
+        "auctions": my_auctions
         })

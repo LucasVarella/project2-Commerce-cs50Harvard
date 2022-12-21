@@ -80,10 +80,14 @@ h5{
 
 }
 
-.form-div{
+.form-div-bid{
     max-width: 150px;
     text-align: center;
    
+}
+
+.form-div{
+    max-width: 250px;
 }
 
 .button-bid{
