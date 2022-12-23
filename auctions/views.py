@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from datetime import datetime
 
-from .models import User, Auction, Bid, Comment, Watchlist
+from .models import User, Auction, Bid, Comment, Watchlist, Category
 
 origin = ""
 
@@ -413,3 +413,28 @@ def my_auctions(request):
     return render(request, "auctions/myauctions.html", {
         "auctions": my_auctions
         })
+    
+def categories(request):
+    categories = ['Toy', 'Woman', 'Eletronic', 'Home']
+    auctions_filtered = []
+    
+    if request.method == "POST":
+        active_category = request.POST['category']
+        
+        auctions = Category.objects.filter(name= active_category)
+        
+        for auction in auctions:
+            
+            
+            auctions_filtered.append(auction.auction)
+        
+        
+        return render(request, "auctions/categories.html", {
+            "categories": categories, "auctions": auctions_filtered
+        })
+    else:
+        return render(request, "auctions/categories.html", {
+            "categories": categories 
+        })
+    
+    

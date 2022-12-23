@@ -171,14 +171,14 @@
 
     <div class="div-box">
         
-        <h4 style="padding-bottom: 20px;">Comments</h4>
-        <div class="" style="max-height: 400px; overflow:auto">
+        <h4 >Comments</h4>
+        <div class="border-top  border-bottom " style="max-height: 400px; overflow:auto; padding-top: 20px;">
 
             {% if user.is_authenticated == False %}
 
                  <div class="flex flex-column">
                     {% for comment in comments %}
-                        <div style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 20px;">
                             <span> <strong>{{comment.user}}</strong></span>
                             <p>{{comment.text}}</p>  
                         </div>
@@ -195,7 +195,7 @@
 
                     <div class="flex flex-column">
                         {% for comment in comments %}
-                        <div style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 20px;">
                             <span> <strong>{{comment.user}}</strong></span>
                             <p>{{comment.text}}</p>  
                         </div>
@@ -207,7 +207,7 @@
                 {% else %}
                     <div class="flex flex-column">
                         {% for comment in comments %}
-                            <div style="margin-bottom: 15px;">
+                            <div style="margin-bottom: 20px;">
                                 <span> <strong>{{comment.user}}</strong></span>
                                 <p>{{comment.text}}</p>  
                             </div>
@@ -216,10 +216,11 @@
                         {% endfor %}
                     </div>
                    
-        </div>   
-            <form class="form-div" action="" method="post">
+        </div>
+        
+            <form class="" action="" method="post">
                 {% csrf_token %}
-                <div class="form-group" style="padding-top: 28px;">
+                <div class="form-group">
                         <input class="form-control form-control-lg" type="text" name="text_comment" placeholder="Escreva aqui">
                 </div>
                 <div class="form-group">

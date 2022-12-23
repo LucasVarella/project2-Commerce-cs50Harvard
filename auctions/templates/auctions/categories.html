@@ -1,0 +1,13 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="flex flex-row"> 
+            {% for category in categories %}
+                <form class="flex flex-row" action="" method="post">
+                    <input hidden type="text" name="category" value="{{category}}">
+                    <div class="form-group"><button class="category-div alert alert-success">{{category}}</button></div>
+                    {% csrf_token %}
+                </form>
+            {% endfor %}          
+    </div>
+{% endblock %}
