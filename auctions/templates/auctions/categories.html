@@ -1,13 +1,45 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <div class="flex flex-row"> 
-            {% for category in categories %}
-                <form class="flex flex-row" action="" method="post">
-                    <input hidden type="text" name="category" value="{{category}}">
-                    <div class="form-group"><button class="category-div alert alert-success">{{category}}</button></div>
-                    {% csrf_token %}
-                </form>
-            {% endfor %}          
+
+    <h2>Categories</h2>
+    <div class="flex flex-row div-box" style="justify-content: left"> 
+        {% for category in categories %}
+        <div class="flex flex-row">
+            <form class="flex flex-row" action="" method="post">
+                <input hidden type="text" name="category" value="{{category}}">
+                <button class="category-div alert alert-info">{{category}}</button>
+                {% csrf_token %}
+            </form>
+        </div>
+        {% endfor %}        
     </div>
+
+    {% for auction in auctions %}
+        {% if auction.active == True %}
+            <div id="auction" class="flex flex-row div-box">
+                    <div class="flex flex-row">
+                        <div class="auction-image" style="text-align: center;">
+                            <img class="auction-image" style="padding-bottom: 15px;" src="{{auction.image_url}}">
+                        </div>
+
+                        <div class="auction-labels">
+                            <h4>{{auction.name}}</h4>
+                            <p>{{auction.description}}</p>
+                            {% if auction.price > auction.init_bid %}
+                                <h5>Current bid: ${{auction.price}}</h5>
+                            {% else %}
+                                <h5> Initial bid: ${{auction.init_bid}}</h5>
+                                <p>Be the first to set a bid</p>
+                            {% endif %}
+                            <span>Posted in: {{auction.date_time}}</span>
+                        </div>
+                    </div>
+
+                    <div data-auction_id="{{auction.id}}" class="btn btn-info button-bid">Show</div>                    
+            </div>
+        {% endif %}
+    
+    {% endfor %}
+
 {% endblock %}

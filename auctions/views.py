@@ -84,10 +84,17 @@ def create_listing(request):
     
     global login_user
     # POST
-    if request.method == "POST":   
+    if request.method == "POST":  
+         
         auction = Auction()
         auction = Auction(name= request.POST["title"], date_time= datetime.now() , description= request.POST["description"], image_url= request.POST["image_url"], init_bid = request.POST["init_bid"], category = request.POST["category"], user= request.user)
-        auction.save()   
+        auction.save()  
+        
+        if request.POST["category"] is not None:
+            name = request.POST["category"]
+            new_category = Category(name= name, auction = auction)
+            new_category.save()
+             
         auctions = Auction.objects.all()
         return render(request, "auctions/index.html", {
             "auctions": auctions, "title": "Active Listings"
@@ -415,22 +422,31 @@ def my_auctions(request):
         })
     
 def categories(request):
-    categories = ['Toy', 'Woman', 'Eletronic', 'Home']
+    categories_objects = Category.objects.all()
+    categories = []
+    
+    for category in categories_objects:
+        auction = category.auction
+        if auction.active == True:
+            categories.append(category.name)  
+    
+    categories = set(categories)
     auctions_filtered = []
     
     if request.method == "POST":
+        
         active_category = request.POST['category']
         
         auctions = Category.objects.filter(name= active_category)
-        
         for auction in auctions:
-            
-            
-            auctions_filtered.append(auction.auction)
+                auctions_filtered.append(auction.auction)
         
+        auctions_filtered = set(auctions_filtered)
+        
+            
         
         return render(request, "auctions/categories.html", {
-            "categories": categories, "auctions": auctions_filtered
+            "categories": categories, "auctions": auctions_filtered, "act": active_category
         })
     else:
         return render(request, "auctions/categories.html", {

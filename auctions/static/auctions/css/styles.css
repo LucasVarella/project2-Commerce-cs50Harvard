@@ -111,3 +111,18 @@ h5{
   
 }
 
+.radios input[type=radio] {
+    display:none
+}
+
+.radios .radio {
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px;
+    margin: 0px 7px;
+    border-radius: 8px;
+}
+
+.radios input[type=radio]:checked + .radio {
+    border: 1.8px solid black;
+}
