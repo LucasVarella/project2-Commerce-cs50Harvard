@@ -7,8 +7,7 @@ from django.urls import reverse
 
 from datetime import datetime
 
-from .models import User, Auction, Bid, Comment, Watchlist, Category
-
+from .models import User, Auction, Bid, Comment, Watchlist
 origin = ""
 
 def index(request):
@@ -89,13 +88,9 @@ def create_listing(request):
         auction = Auction()
         auction = Auction(name= request.POST["title"], date_time= datetime.now() , description= request.POST["description"], image_url= request.POST["image_url"], init_bid = request.POST["init_bid"], category = request.POST["category"], user= request.user)
         auction.save()  
-        
-        if request.POST["category"] is not None:
-            name = request.POST["category"]
-            new_category = Category(name= name, auction = auction)
-            new_category.save()
              
         auctions = Auction.objects.all()
+        
         return render(request, "auctions/index.html", {
             "auctions": auctions, "title": "Active Listings"
         })
@@ -422,35 +417,32 @@ def my_auctions(request):
         })
     
 def categories(request):
-    categories_objects = Category.objects.all()
     categories = []
+    auctions = Auction.objects.all()
     
-    for category in categories_objects:
-        auction = category.auction
+    for auction in auctions:
+        
         if auction.active == True:
-            categories.append(category.name)  
+            if auction.category != "":    
+                categories.append(auction.category)
     
     categories = set(categories)
-    auctions_filtered = []
     
+    auctions_filtered = []
     if request.method == "POST":
         
         active_category = request.POST['category']
         
-        auctions = Category.objects.filter(name= active_category)
-        for auction in auctions:
-                auctions_filtered.append(auction.auction)
+        auctions_filtered = Auction.objects.filter(category= active_category)
         
         auctions_filtered = set(auctions_filtered)
-        
-            
         
         return render(request, "auctions/categories.html", {
             "categories": categories, "auctions": auctions_filtered, "act": active_category
         })
+        
     else:
         return render(request, "auctions/categories.html", {
             "categories": categories 
         })
-    
-    
+        

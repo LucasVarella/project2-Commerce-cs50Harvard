@@ -5,6 +5,7 @@ body {
     background-attachment: fixed;
     background-position: center;   
     padding-top: 1.5rem;
+    font-family: 'Open Sans', sans-serif;
 }
 
 p{
@@ -126,3 +127,5 @@ h5{
 .radios input[type=radio]:checked + .radio {
     border: 1.8px solid black;
 }
+
+
