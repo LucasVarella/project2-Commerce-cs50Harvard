@@ -47,11 +47,15 @@
                 </button>
                 </div>
                 <div class="modal-body">
-                    <p style="padding-bottom: 0px;">The highest bid will be declared the winner and the auction will be closed!</p>
-                    <div>
-                        <h6>Last bid: $ {{auction.price}}</h6> 
-                        <h6>By: {{bids.last.user}}</h6> 
-                    </div>
+                    {% if auction.price >= auction.init_bid %}
+                        <p style="padding-bottom: 0px;">The highest bid will be declared the winner and the auction will be closed!</p>
+                        <div>
+                            <h6>Last bid: $ {{auction.price}}</h6> 
+                            <h6>By: {{bids.last.user}}</h6> 
+                        </div>
+                    {% else %}
+                        <p>Your auction will be deleted!</p>
+                    {% endif %}
                 </div>
                 <div class="modal-footer" >
                     <button type="submit" class="btn-danger" style="border: none; border-radius: 5px; padding: 8px; color: white; text-decoration: none;">Yes, close action</button>
@@ -93,7 +97,7 @@
                 </div>
                 <div class=" div-box flex flex-row">
                     
-                    {% if auction.price > auction.init_bid %}
+                    {% if auction.price >= auction.init_bid %}
                         <h5>Current bid: ${{auction.price}}</h5>
                     {% else %}
                         <h5> Initial bid: ${{auction.init_bid}}</h5>
