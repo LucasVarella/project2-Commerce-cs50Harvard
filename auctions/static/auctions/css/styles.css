@@ -128,4 +128,8 @@ h5{
     border: 1.8px solid black;
 }
 
-
+.be-first-bid{
+    max-width: 250px; 
+    margin-top: 15px;
+    text-align: center;
+}
